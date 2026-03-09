@@ -1,6 +1,6 @@
 {
   "name": "@henryxiaoyang/wechat-access-unqclawed",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "OpenClaw 微信通路插件 — 扫码登录 + AGP WebSocket 双向通信",
   "author": "HenryXiaoYang",
@@ -24,12 +24,12 @@
       "./index.ts"
     ],
     "channel": {
-      "id": "wechat-access",
-      "label": "wechat-access",
+      "id": "wechat-access-unqclawed",
+      "label": "wechat-access-unqclawed",
       "selectionLabel": "WeCom (plugin)",
       "detailLabel": "WeCom Bot",
       "docsPath": "/channels/wechat-access",
-      "docsLabel": "wechat-access",
+      "docsLabel": "wechat-access-unqclawed",
       "blurb": "Enterprise WeCom intelligent bot (API mode) via encrypted webhooks + passive replies.",
       "aliases": [
         "wechatwork",

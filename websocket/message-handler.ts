@@ -210,7 +210,7 @@ export const handlePrompt = async (
      * 这些统计数据用于 OpenClaw 控制台的活动监控面板。
      */
     runtime.channel.activity.record({
-      channel: "wechat-access",
+      channel: "wechat-access-unqclawed",
       accountId: route.accountId ?? "default",
       direction: "inbound",
     });
@@ -449,7 +449,7 @@ export const handlePrompt = async (
 
           // 记录出站活动统计（每次 deliver 都算一次出站）
           runtime.channel.activity.record({
-            channel: "wechat-access",
+            channel: "wechat-access-unqclawed",
             accountId: route.accountId ?? "default",
             direction: "outbound",
           });

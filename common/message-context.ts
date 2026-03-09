@@ -82,7 +82,7 @@ export const buildMessageContext = (message: FuwuhaoMessage): MessageContext => 
   // 根据频道、账号、对话类型等信息，决定使用哪个 Agent 处理消息
   const frameworkRoute = runtime.channel.routing.resolveAgentRoute({
     cfg,                    // 全局配置
-    channel: "wechat-access",     // 频道标识
+    channel: "wechat-access-unqclawed",     // 频道标识
     accountId: "default",   // 账号 ID（支持多账号场景）
     peer: {
       kind: "dm",           // 对话类型：dm=私聊，group=群聊
@@ -132,7 +132,7 @@ export const buildMessageContext = (message: FuwuhaoMessage): MessageContext => 
   // runtime.channel.reply.formatInboundEnvelope 将原始消息格式化为标准格式
   // 添加时间戳、发送者信息、格式化选项等
   const body = runtime.channel.reply.formatInboundEnvelope({
-    channel: "wechat-access",         // 频道标识
+    channel: "wechat-access-unqclawed",         // 频道标识
     from: userId,               // 发送者 ID
     timestamp,                  // 消息时间戳
     body: content,              // 消息内容
@@ -161,11 +161,11 @@ export const buildMessageContext = (message: FuwuhaoMessage): MessageContext => 
     ChatType: "direct" as const,                // 对话类型
     ChannelSource: WECHAT_CHANNEL_LABELS.serviceAccount,  // 渠道来源标识（用于 UI 侧区分消息来源）
     SenderId: userId,                           // 发送者 ID
-    Provider: "wechat-access",                        // 提供商标识
-    Surface: "wechat-access",                         // 界面标识
+    Provider: "wechat-access-unqclawed",                        // 提供商标识
+    Surface: "wechat-access-unqclawed",                         // 界面标识
     MessageSid: messageId,                      // 消息唯一标识
     Timestamp: timestamp,                       // 时间戳
-    OriginatingChannel: "wechat-access" as const,     // 原始频道
+    OriginatingChannel: "wechat-access-unqclawed" as const,     // 原始频道
     OriginatingTo: `wechat-access:${userId}`,         // 原始接收者
   });
   // ctx 包含了 Agent 处理消息所需的所有信息

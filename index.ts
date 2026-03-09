@@ -13,14 +13,14 @@ const wsClients = new Map<string, WechatAccessWebSocketClient>();
 
 // 渠道元数据
 const meta = {
-  id: "wechat-access",
+  id: "wechat-access-unqclawed",
   label: "腾讯通路",
   /** 选择时的显示文本 */
   selectionLabel: "腾讯通路",
   detailLabel: "腾讯通路",
   /** 文档路径 */
   docsPath: "/channels/wechat-access",
-  docsLabel: "wechat-access",
+  docsLabel: "wechat-access-unqclawed",
   /** 简介 */
   blurb: "通用通路",
   /** 图标 */
@@ -31,7 +31,7 @@ const meta = {
 
 // 渠道插件
 const tencentAccessPlugin = {
-  id: "wechat-access",
+  id: "wechat-access-unqclawed",
   meta,
 
   // 能力声明
@@ -46,13 +46,13 @@ const tencentAccessPlugin = {
 
   // 热重载：token 或 wsUrl 变更时触发 gateway 重启
   reload: {
-    configPrefixes: ["channels.wechat-access.token", "channels.wechat-access.wsUrl"],
+    configPrefixes: ["channels.wechat-access-unqclawed.token", "channels.wechat-access-unqclawed.wsUrl"],
   },
 
   // 配置适配器（必需）
   config: {
     listAccountIds: (cfg: any) => {
-      const accounts = cfg.channels?.["wechat-access"]?.accounts;
+      const accounts = cfg.channels?.["wechat-access-unqclawed"]?.accounts;
       if (accounts && typeof accounts === "object") {
         return Object.keys(accounts);
       }
@@ -60,7 +60,7 @@ const tencentAccessPlugin = {
       return ["default"];
     },
     resolveAccount: (cfg: any, accountId: string) => {
-      const accounts = cfg.channels?.["wechat-access"]?.accounts;
+      const accounts = cfg.channels?.["wechat-access-unqclawed"]?.accounts;
       const account = accounts?.[accountId ?? "default"];
       return account ?? { accountId: accountId ?? "default" };
     },
@@ -86,7 +86,7 @@ const tencentAccessPlugin = {
     startAccount: async (ctx: any) => {
       const { cfg, accountId, abortSignal, log } = ctx;
 
-      const tencentAccessConfig = cfg?.channels?.["wechat-access"];
+      const tencentAccessConfig = cfg?.channels?.["wechat-access-unqclawed"];
       let token = tencentAccessConfig?.token ? String(tencentAccessConfig.token) : "";
       const configWsUrl = tencentAccessConfig?.wsUrl ? String(tencentAccessConfig.wsUrl) : "";
       const bypassInvite = tencentAccessConfig?.bypassInvite === true;
@@ -211,7 +211,7 @@ const tencentAccessPlugin = {
 };
 
 const index = {
-  id: "wechat-access",
+  id: "wechat-access-unqclawed",
   name: "通用通路插件",
   description: "腾讯通用通路插件",
   configSchema: emptyPluginConfigSchema(),
@@ -226,8 +226,51 @@ const index = {
     // 2. 注册渠道插件
     api.registerChannel({ plugin: tencentAccessPlugin as any });
 
-    // 3. 注册 HTTP 处理器（如需要）
-    // api.registerHttpHandler(handleSimpleWecomWebhook);
+    // 3. 注册 /wechat-login 命令（手动触发扫码登录）
+    api.registerCommand?.({
+      command: "wechat-login",
+      description: "手动执行微信扫码登录，获取 channel token",
+      handler: async ({ cfg, reply }) => {
+        const channelCfg = cfg?.channels?.["wechat-access-unqclawed"];
+        const bypassInvite = channelCfg?.bypassInvite === true;
+        const authStatePath = channelCfg?.authStatePath
+          ? String(channelCfg.authStatePath)
+          : undefined;
+        const envName = channelCfg?.environment
+          ? String(channelCfg.environment)
+          : "production";
+
+        const env = getEnvironment(envName);
+        const guid = getDeviceGuid();
+
+        try {
+          reply("正在启动微信扫码登录，请查看终端...");
+          const credentials = await performLogin({
+            guid,
+            env,
+            bypassInvite,
+            authStatePath,
+          });
+          reply(`登录成功! token: ${credentials.channelToken.substring(0, 6)}... (已保存，重启 Gateway 生效)`);
+        } catch (err) {
+          reply(`登录失败: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      },
+    });
+
+    // 4. 注册 /wechat-logout 命令（清除已保存的登录态）
+    api.registerCommand?.({
+      command: "wechat-logout",
+      description: "清除已保存的微信登录态",
+      handler: async ({ cfg, reply }) => {
+        const channelCfg = cfg?.channels?.["wechat-access-unqclawed"];
+        const authStatePath = channelCfg?.authStatePath
+          ? String(channelCfg.authStatePath)
+          : undefined;
+        clearState(authStatePath);
+        reply("已清除登录态，下次启动将重新扫码登录。");
+      },
+    });
 
     console.log("[wechat-access] 腾讯通路插件已注册");
   },
